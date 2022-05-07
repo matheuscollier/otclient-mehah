@@ -4,7 +4,6 @@
     "dependencies": [
         "asio",
         "opengl",
-        "glew",
         "libogg",
         "libvorbis",
         "nlohmann-json",
@@ -16,6 +15,10 @@
         "liblzma",
         {
           "name": "luajit",
+          "platform": "windows"
+        },
+        {
+          "name": "glew",
           "platform": "windows"
         }
     ]

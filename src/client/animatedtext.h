@@ -28,6 +28,7 @@
 #include <framework/graphics/cachedtext.h>
 #include <framework/graphics/fontmanager.h>
 
+
  // @bindclass
 class AnimatedText : public Thing
 {

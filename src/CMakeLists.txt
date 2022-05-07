@@ -11,6 +11,8 @@ option(TOGGLE_DIRECTX "Use DX9 support" OFF)
 option(TOGGLE_STATIC_LIBS "Use shared libraries (dlls)" ON)
 option(TOGGLE_BOT_PROTECTION "Use bot protection" ON)
 option(TOGGLE_PRE_COMPILED_HEADER "Use precompiled header (speed up compile)" OFF)
+option(DEBUG_LOG "Enable Debug Log" OFF)
+option(ASAN_ENABLED "Build this target with AddressSanitizer" OFF)
 
 # *****************************************************************************
 # Cmake Features
@@ -20,6 +22,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 
 # Make will print more details
 set(CMAKE_VERBOSE_MAKEFILE OFF)
@@ -43,6 +46,7 @@ if (TOGGLE_FRAMEWORK_NET)
 	set(FRAMEWORK_DEFINITIONS ${FRAMEWORK_DEFINITIONS} -DFRAMEWORK_NET)
 endif()
 
+
 # Set for use static libs if is x86 build
 # CMAKE_SIZEOF_VOID_P EQUAL 4 = x86 build
 if(CMAKE_SIZEOF_VOID_P EQUAL 4 AND TOGGLE_STATIC_LIBS AND NOT APPLE)
@@ -52,12 +56,14 @@ else()
 	message(STATUS "Link to static libraries: OFF")
 endif()
 
+
 # Set for use bot protection
 if(TOGGLE_BOT_PROTECTION)
 	message(STATUS "Bot protection: ON")
 else(TOGGLE_BOT_PROTECTION)
 	message(STATUS "Bot protection: OFF")
 endif(TOGGLE_BOT_PROTECTION)
+
 
 # Set for use precompiled header
 if(TOGGLE_PRE_COMPILED_HEADER)
@@ -68,14 +74,6 @@ else()
 	message(STATUS "Use precompiled header: OFF")
 endif(TOGGLE_PRE_COMPILED_HEADER)
 
-# Set for supress deprecated declarations (for GCC/GNU)
-# If not is GCC version 11, return message of error
-if (CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
-	if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS GNUCXX_MINIMUM_VERSION)
-		message(FATAL_ERROR "GCC version must be at least ${GNUCXX_MINIMUM_VERSION}!")
-	endif()
-endif()
 
 set(VERSION "1.0.0")
 
@@ -88,9 +86,46 @@ else()
 	add_executable(${PROJECT_NAME} "")
 endif()
 
+
 # *****************************************************************************
 # Definitions code
 # *****************************************************************************
+
+
+# === ASAN ===
+if(ASAN_ENABLED)
+  log_option_enabled("asan")
+
+  if(MSVC)
+    target_compile_options(${PROJECT_NAME} PUBLIC /fsanitize=address)
+  else()
+    target_compile_options(${PROJECT_NAME} PUBLIC -fsanitize=address)
+    target_link_options(${PROJECT_NAME} PUBLIC -fsanitize=address)
+  endif()
+else()
+  log_option_disabled("asan")
+endif()
+
+
+# === DEBUG LOG ===
+# cmake -DDEBUG_LOG=ON ..
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE -DDEBUG_LOG=ON )
+  log_option_enabled("DEBUG LOG")
+  else()
+  log_option_disabled("DEBUG LOG")
+endif(CMAKE_BUILD_TYPE MATCHES Debug)
+
+
+# Set for supress deprecated declarations (for GCC/GNU)
+# If not is GCC version 11, return message of error
+if (CMAKE_COMPILER_IS_GNUCXX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+	if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS GNUCXX_MINIMUM_VERSION)
+		message(FATAL_ERROR "GCC version must be at least ${GNUCXX_MINIMUM_VERSION}!")
+	endif()
+endif()
+
 
 # Multiprocessor compiller
 if(CMake_MSVC_PARALLEL)
@@ -101,6 +136,7 @@ if(CMake_MSVC_PARALLEL)
 	endif()
 endif()
 
+
 # Client options
 add_definitions(-DCLIENT)
 # Set bot protection
@@ -110,6 +146,7 @@ endif(TOGGLE_BOT_PROTECTION)
 add_definitions(-D_WIN32_WINNT=0x0501)
 add_definitions(${FRAMEWORK_DEFINITIONS})
 add_definitions(-D"VERSION=${VERSION}")
+
 
 # *****************************************************************************
 # Packages / Libs
@@ -311,6 +348,20 @@ target_sources(${PROJECT_NAME}
 # Includes and librarys
 # *****************************************************************************
 if(MSVC)
+
+	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+		string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+		string(REPLACE "/Zi" "/Z7" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
+	elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+		string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+		string(REPLACE "/Zi" "/Z7" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
+	elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+		string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+		string(REPLACE "/Zi" "/Z7" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+	endif()
+
+  	target_compile_options(${PROJECT_NAME} PUBLIC /MP /FS /Zf )
+
 	target_include_directories(${PROJECT_NAME}
 		PRIVATE
 		${CMAKE_SOURCE_DIR}/src
