@@ -60,7 +60,7 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         uses: docker/build-push-action@v2
         with:
-          file: docker/server/Dockerfile
+          file: Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository }}:${{ steps.gitversion.outputs.semVer }}
           cache-from: type=gha, scope=${{ github.workflow }}
