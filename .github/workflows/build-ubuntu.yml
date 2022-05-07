@@ -67,6 +67,6 @@ jobs:
       - name: Create and Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: canary-${{ matrix.buildtype }}-${{ github.sha }}
+          name: otclient-${{ matrix.buildtype }}-${{ github.sha }}
           path: |
-            ${{ github.workspace }}/build/${{ matrix.buildtype }}/bin/
+            ${{ github.workspace }}/otclient

@@ -53,9 +53,14 @@ jobs:
           configurePreset: ${{ matrix.buildtype }}
           buildPreset: ${{ matrix.buildtype }}
 
-      - name: Create and Upload Artifact
+      - name: Create and Upload Artifact (exe)
         uses: actions/upload-artifact@v3
         with:
-          name: canary-${{ matrix.buildtype }}-${{ github.sha }}
-          path: |
-            ${{ github.workspace }}/build/${{ matrix.buildtype }}/bin/
+          name: otclient-${{ matrix.buildtype }}-${{ github.sha }}
+          path: {{ github.workspace }}/otclient.exe
+
+      - name: Create and Upload Artifact (dlls)
+        uses: actions/upload-artifact@v3
+        with:
+          name: otclient-${{ matrix.buildtype }}-${{ github.sha }}
+          path: {{ github.workspace }}/*.dll
