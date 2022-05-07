@@ -69,6 +69,16 @@
       }
     },
     {
+      "name": "windows-release-static-lib",
+      "inherits": "windows-release",
+      "displayName": "Windows - Release + Static-lib",
+      "description": "Release Mode with Static-lib",
+      "architecture": {
+        "value": "x86",
+        "strategy": "external"
+      }
+    },
+    {
       "name": "windows-debug",
       "inherits": "windows-release",
       "displayName": "Windows - Debug",
@@ -111,6 +121,10 @@
     {
       "name": "windows-release-asan",
       "configurePreset": "windows-release-asan"
+    },
+    {
+      "name": "wwindows-release-static-lib",
+      "configurePreset": "windows-release-static-lib"
     },
     {
       "name": "windows-debug",
