@@ -123,7 +123,7 @@
       "configurePreset": "windows-release-asan"
     },
     {
-      "name": "wwindows-release-static-lib",
+      "name": "windows-release-static-lib",
       "configurePreset": "windows-release-static-lib"
     },
     {
