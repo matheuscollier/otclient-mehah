@@ -57,10 +57,12 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: otclient-${{ matrix.buildtype }}-${{ github.sha }}
-          path: {{ github.workspace }}/otclient.exe
+          path: |
+            ${{ github.workspace }}/otclient.exe
 
       - name: Create and Upload Artifact (dlls)
         uses: actions/upload-artifact@v3
         with:
           name: otclient-${{ matrix.buildtype }}-${{ github.sha }}
-          path: {{ github.workspace }}/*.dll
+          path: |
+            ${{ github.workspace }}/*.dll
